@@ -1,0 +1,104 @@
+<Window x:Class="EmergencyDesk.Views.AlertWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Emergency alert" Width="620" SizeToContent="Height" MaxHeight="780"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize"
+        Topmost="True" ShowInTaskbar="True" Background="{StaticResource BgBrush}">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <!-- flashing border so the alert cannot be missed -->
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard>
+                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                    <ColorAnimation Storyboard.TargetName="FlashBrush" Storyboard.TargetProperty="Color"
+                                    From="#E5484D" To="#4A1D20" Duration="0:0:0.5"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border BorderThickness="6">
+        <Border.BorderBrush>
+            <SolidColorBrush x:Name="FlashBrush" Color="#E5484D"/>
+        </Border.BorderBrush>
+
+        <StackPanel>
+            <Border Background="{StaticResource AccentBrush}" Padding="24,12">
+                <TextBlock FontSize="18" FontWeight="Bold" Foreground="White">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="NEW EMERGENCY REPORT"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentAlert.IsEscalated}" Value="True">
+                                    <Setter Property="Text" Value="ESCALATED - NOT ACKNOWLEDGED"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Border>
+
+            <StackPanel Margin="24,18,24,22">
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="4" Padding="10,3"
+                            Background="{Binding CurrentAlert.PriorityLevel, Converter={StaticResource PriorityBrush}}">
+                        <TextBlock Text="{Binding CurrentAlert.PriorityLabel}" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                    <TextBlock Margin="12,0,0,0" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center">
+                        <Run Text="{Binding CurrentAlert.Type, Mode=OneWay}"/>
+                        <Run Text=" · Incident #"/>
+                        <Run Text="{Binding CurrentAlert.Id, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock Text="{Binding CurrentAlert.Description}" FontSize="18" TextWrapping="Wrap"
+                           Margin="0,14,0,0" MaxHeight="150"/>
+                <TextBlock Text="{Binding CurrentAlert.PriorityReason}" Style="{StaticResource Muted}"
+                           TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                <TextBlock Text="Reporter" Style="{StaticResource Muted}" Margin="0,16,0,2"/>
+                <TextBlock>
+                    <Run Text="{Binding CurrentAlert.ReporterName, Mode=OneWay}"/>
+                    <Run Text=" · "/>
+                    <Run Text="{Binding CurrentAlert.ReporterPhone, Mode=OneWay}"/>
+                </TextBlock>
+
+                <TextBlock Text="Location" Style="{StaticResource Muted}" Margin="0,12,0,2"/>
+                <TextBlock Text="{Binding CurrentAlert.Address}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding CurrentAlert.Coordinates}" Style="{StaticResource Muted}"/>
+
+                <TextBlock Text="Time to acknowledge" Style="{StaticResource Muted}" Margin="0,14,0,0"/>
+                <TextBlock Text="{Binding CurrentAlert.SlaAckText}" FontSize="28" FontWeight="Bold"
+                           Foreground="{Binding CurrentAlert.SlaAckState, Converter={StaticResource SlaBrush}}"/>
+
+                <TextBlock Margin="0,10,0,0" Foreground="#F5A524" FontWeight="SemiBold">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasMoreAlerts}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    <Run Text="More alerts waiting: "/>
+                    <Run Text="{Binding AlertQueueCount, Mode=OneWay}"/>
+                    <Run Text=" unacknowledged in total"/>
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                    <Button Content="Acknowledge" Style="{StaticResource PrimaryButton}"
+                            Command="{Binding AcknowledgeAlertCommand}" Padding="24,12" FontSize="16" FontWeight="Bold"/>
+                    <Button Content="Open incident" Command="{Binding OpenAlertCommand}" Padding="18,12" FontSize="15"/>
+                    <Button Content="Remind me later" Command="{Binding SnoozeAlertCommand}" Padding="18,12" FontSize="15"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

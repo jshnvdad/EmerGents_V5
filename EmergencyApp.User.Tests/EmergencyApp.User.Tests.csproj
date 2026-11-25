@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- compiles the app's pure-logic files directly; no MAUI needed -->
+    <Compile Include="../EmergencyApp.User/Reliability/*.cs" />
+  </ItemGroup>
+</Project>
