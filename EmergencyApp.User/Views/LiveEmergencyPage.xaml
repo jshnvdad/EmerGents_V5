@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EmergencyApp.User.ViewModels"
+             x:Class="EmergencyApp.User.Views.LiveEmergencyPage"
+             x:DataType="vm:LiveEmergencyViewModel"
+             Title="Live emergency"
+             Shell.TabBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Label Text="{Binding TypeLabel}" Style="{StaticResource Muted}" FontAttributes="Bold" />
+            <Label Text="{Binding Headline}" FontSize="30" FontAttributes="Bold" />
+
+            <!-- Status -->
+            <Border Style="{StaticResource Card}" BackgroundColor="{Binding StatusBg}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding StatusText}" FontSize="18" FontAttributes="Bold" TextColor="{Binding StatusColor}" />
+                    <Label Text="{Binding Subtitle}" />
+                    <Label Text="{Binding ClosingText}" IsVisible="{Binding ShowClosing}" FontAttributes="Bold" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Network state + low-battery warning -->
+            <Label Text="{Binding ChannelText}" TextColor="{Binding ChannelColor}" FontAttributes="Bold" FontSize="13" />
+            <Border Style="{StaticResource Card}" BackgroundColor="#FFF3E0" Padding="12,8" IsVisible="{Binding HasBatteryWarning}">
+                <Label Text="{Binding BatteryWarning}" FontSize="13" />
+            </Border>
+
+            <!-- Fallbacks: shown while the server has not confirmed the alert and something went wrong -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#FFEBEE" IsVisible="{Binding ShowFallback}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding FallbackTitle}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                    <Label Text="{Binding FallbackText}" />
+                    <Button Text="Cancel auto-call" Style="{StaticResource Outline}"
+                            Command="{Binding CancelAutoCallCommand}" IsVisible="{Binding AutoCallActive}" />
+                    <Button Text="{Binding CallButtonText}" Command="{Binding CallEmergencyNowCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Delivery: Sent > Received > Acknowledged by dispatcher -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📡 Delivery" Style="{StaticResource Muted}" FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                        <Label Text="{Binding SentIcon}" />
+                        <Label Grid.Column="1" Text="{Binding SentLabel}" />
+                        <Label Grid.Column="2" Text="{Binding SentTime}" FontAttributes="Bold" />
+
+                        <Label Grid.Row="1" Text="{Binding ReceivedIcon}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="Received by server" />
+                        <Label Grid.Row="1" Grid.Column="2" Text="{Binding ReceivedTime}" FontAttributes="Bold" />
+
+                        <Label Grid.Row="2" Text="{Binding AckIcon}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="Acknowledged by dispatcher" />
+                        <Label Grid.Row="2" Grid.Column="2" Text="{Binding AckTime}" FontAttributes="Bold" />
+                    </Grid>
+                    <Label Text="{Binding DeliveryNote}" Style="{StaticResource Muted}" IsVisible="{Binding HasDeliveryNote}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Responder -->
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasResponder}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🚑 Responder" Style="{StaticResource Muted}" FontAttributes="Bold" />
+                    <Label Text="{Binding ResponderName}" FontSize="20" FontAttributes="Bold" />
+                    <Label Text="{Binding ResponderUnit}" Style="{StaticResource Muted}" />
+                    <Label Text="{Binding ResponderAddress}" />
+                    <Label Text="{Binding DistanceText}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Primary}" Margin="0,6,0,0" />
+                    <Label Text="{Binding EtaText}" Style="{StaticResource Muted}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
+                        <Button Text="📞 Call" Command="{Binding CallResponderCommand}" IsVisible="{Binding HasResponderPhone}" />
+                        <Button Grid.Column="1" Text="Map ↗" Style="{StaticResource Outline}"
+                                Command="{Binding OpenResponderLocationCommand}" IsVisible="{Binding HasResponderLocation}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Your live location -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="📍 Your live location" Style="{StaticResource Muted}" FontAttributes="Bold" />
+                    <Label Text="{Binding MyCoords}" FontSize="20" FontAttributes="Bold" />
+                    <Label Text="{Binding MyDetail}" Style="{StaticResource Muted}" />
+                    <Label Text="View location in Google Maps ↗" TextColor="{StaticResource Primary}" FontAttributes="Bold" Margin="0,6,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMyLocationCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Timeline -->
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                    <Label Text="Responder dispatched" /><Label Grid.Column="1" Text="{Binding DispatchedTime}" FontAttributes="Bold" />
+                    <Label Grid.Row="1" Text="Responder arrived" /><Label Grid.Row="1" Grid.Column="1" Text="{Binding ArrivedTime}" FontAttributes="Bold" />
+                    <Label Grid.Row="2" Text="Finished" /><Label Grid.Row="2" Grid.Column="1" Text="{Binding FinishedTime}" FontAttributes="Bold" />
+                </Grid>
+            </Border>
+
+            <Button Text="Request SOS cancellation" Style="{StaticResource Outline}"
+                    Command="{Binding CancelRequestCommand}" IsVisible="{Binding CanCancel}" />
+            <Label Text="{Binding UpdateNote}"
+                   Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EmergencyApp.User.ViewModels"
+             xmlns:models="clr-namespace:EmergencyApp.User.Models"
+             x:Class="EmergencyApp.User.Views.HistoryPage"
+             x:DataType="vm:HistoryViewModel"
+             Title="My requests">
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <CollectionView ItemsSource="{Binding Groups}" IsGrouped="True" Margin="16,8">
+            <CollectionView.EmptyView>
+                <Label Text="No requests yet." Style="{StaticResource Muted}" HorizontalOptions="Center" Margin="0,40" />
+            </CollectionView.EmptyView>
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="vm:RequestGroup">
+                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" Margin="0,12,0,6"
+                           TextColor="{StaticResource TextMuted}" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:EmergencyRequest">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}, Path=OpenCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto,Auto">
+                            <Label Grid.RowSpan="4" Text="{Binding Icon}" FontSize="30" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
+                            <Label Grid.Column="2" Text="{Binding Status}" TextColor="{Binding StatusColor}" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CreatedLocal}" Style="{StaticResource Muted}" />
+                            <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding ResponderText}" Style="{StaticResource Muted}" />
+                            <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding LiveHint}"
+                                   TextColor="{StaticResource Primary}" FontAttributes="Bold" FontSize="13" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>

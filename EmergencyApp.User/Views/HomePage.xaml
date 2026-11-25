@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EmergencyApp.User.ViewModels"
+             xmlns:models="clr-namespace:EmergencyApp.User.Models"
+             x:Class="EmergencyApp.User.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Title="Safety link">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="READY WHEN YOU NEED IT" Style="{StaticResource Muted}" FontAttributes="Bold" />
+            <Label Text="Your safety, one hold away." FontSize="30" FontAttributes="Bold" />
+
+            <!-- Network state: how will an alert be sent right now? (internet / SMS fallback) -->
+            <Border Style="{StaticResource Card}" Padding="12,8">
+                <Label Text="{Binding ChannelText}" TextColor="{Binding ChannelColor}" FontAttributes="Bold" FontSize="13" />
+            </Border>
+
+            <!-- Low-battery warning -->
+            <Border Style="{StaticResource Card}" BackgroundColor="#FFF3E0" Padding="12,8" IsVisible="{Binding HasBatteryWarning}">
+                <Label Text="{Binding BatteryWarning}" FontSize="13" />
+            </Border>
+
+            <Border Style="{StaticResource Card}" IsVisible="{Binding HasActive}" BackgroundColor="#FFEBEE">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenActiveCommand}" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout>
+                    <Label Text="{Binding ActiveText}" FontAttributes="Bold" />
+                    <Label Text="Emergency in progress · tap to view live info ›" Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Incident type -->
+            <Label Text="What happened? (optional)" Style="{StaticResource Muted}" />
+            <CollectionView ItemsSource="{Binding Types}" SelectionMode="Single"
+                            SelectedItem="{Binding SelectedType}" HeightRequest="160">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:EmergencyTypeOption">
+                        <Border Style="{StaticResource Card}" Padding="4" HeightRequest="76">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal" />
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="#FFCDD2" />
+                                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <VerticalStackLayout VerticalOptions="Center">
+                                <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" />
+                                <Label Text="{Binding Name}" FontSize="13" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Number of people -->
+            <Label Text="How many people need help?" Style="{StaticResource Muted}" />
+            <CollectionView ItemsSource="{Binding PeopleOptions}" SelectionMode="Single"
+                            SelectedItem="{Binding SelectedPeople}" HeightRequest="56">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:PeopleOption">
+                        <Border Style="{StaticResource Card}" Padding="4" HeightRequest="52">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal" />
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="#FFCDD2" />
+                                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Label Text="{Binding Label}" FontSize="20" FontAttributes="Bold"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- SOS button: hold 3 s (or tap, see Profile > SOS triggers) -->
+            <Button x:Name="SosButton" Text="SOS" FontSize="48" TextColor="White"
+                    WidthRequest="220" HeightRequest="220" CornerRadius="110"
+                    HorizontalOptions="Center" Margin="0,10"
+                    BackgroundColor="#C62828" Scale="{Binding HoldScale}"
+                    Pressed="OnPressed" Released="OnReleased" />
+            <ProgressBar Progress="{Binding HoldProgress}" ProgressColor="{StaticResource Primary}" />
+            <Label Text="{Binding HoldHint}" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+            <Label Text="Location is sent automatically. Change how SOS starts in Profile › SOS triggers."
+                   Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="{Binding GpsTitle}" FontAttributes="Bold" />
+                    <Label Text="{Binding GpsCoords}" FontSize="20" FontAttributes="Bold" />
+                    <Label Text="{Binding GpsDetail}" Style="{StaticResource Muted}" />
+                    <Label Text="View location in Google Maps ↗" TextColor="{StaticResource Primary}" FontAttributes="Bold" Margin="0,6,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenMapsCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="📞  Call emergency number" Style="{StaticResource Outline}" Command="{Binding CallEmergencyCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

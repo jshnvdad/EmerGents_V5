@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EmergencyApp.User.ViewModels"
+             xmlns:models="clr-namespace:EmergencyApp.User.Models"
+             x:Class="EmergencyApp.User.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Profile">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <Label Text="Personal info" FontAttributes="Bold" FontSize="18" />
+            <Entry Placeholder="Full name" Text="{Binding FullName}" />
+            <Entry Placeholder="Phone" Keyboard="Telephone" Text="{Binding Phone}" />
+            <Label Text="{Binding Email}" Style="{StaticResource Muted}" />
+
+            <Label Text="Medical info (helps responders)" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
+            <Entry Placeholder="Blood type (e.g. O+)" Text="{Binding BloodType}" />
+            <Entry Placeholder="Allergies" Text="{Binding Allergies}" />
+            <Entry Placeholder="Medical conditions" Text="{Binding Conditions}" />
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+                <Label Text="Emergency contacts" FontAttributes="Bold" FontSize="18" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="+ Add" HeightRequest="38" Command="{Binding AddContactCommand}" />
+            </Grid>
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Contacts}" Spacing="8">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:EmergencyContact">
+                        <Border Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Phone}" Style="{StaticResource Muted}" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="✕" WidthRequest="44" HeightRequest="40" Padding="0"
+                                        BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=DeleteContactCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Label Text="Settings" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
+            <Entry Placeholder="Server URL" Keyboard="Url" Text="{Binding ServerUrl}" />
+            <Label Text="This server address is not encrypted (http://). Use https:// so your alert and location cannot be read on the way."
+                   TextColor="{StaticResource Primary}" FontSize="12" IsVisible="{Binding ShowHttpWarning}" />
+            <Entry Placeholder="Local emergency number" Keyboard="Telephone" Text="{Binding EmergencyNumber}" />
+
+            <Label Text="Reliability (weak or no internet)" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="If the internet fails, text my location to dispatch (SMS fallback)" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding SmsFallbackEnabled}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Entry Placeholder="Dispatch SMS number" Keyboard="Telephone" Text="{Binding DispatchSmsNumber}" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="If nothing can be sent, offer to call the emergency number (10-second countdown, you can cancel)" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding AutoCallEnabled}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="Low-battery mode: update my location less often when the battery is low" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding LowBatteryEnabled}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Border Style="{StaticResource Card}">
+                <Label Text="{Binding ReliabilityStatus}" FontSize="13" />
+            </Border>
+            <Label Text="SMS messages use your phone plan. The alert is always saved first and retried automatically." Style="{StaticResource Muted}" />
+
+            <Label Text="SOS triggers" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="Tap the SOS button instead of holding it (starts a 5-second countdown)" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding TapMode}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="Shake the phone to start the SOS countdown" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding ShakeEnabled}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Label Text="Press a volume button 3 times to start the SOS countdown" VerticalOptions="Center" />
+                <Switch Grid.Column="1" IsToggled="{Binding VolumeEnabled}" OnColor="{StaticResource Primary}" />
+            </Grid>
+            <Label Text="Shake and volume triggers work while the app is open. You can always cancel during the countdown." Style="{StaticResource Muted}" />
+
+            <Button Text="Save" Command="{Binding SaveCommand}" Margin="0,10,0,0" />
+            <Button Text="Log out" Style="{StaticResource Outline}" Command="{Binding LogoutCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
